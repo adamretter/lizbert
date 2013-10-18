@@ -1,0 +1,73 @@
+<html>
+<head>
+     <!-- script src='http://cdn.html5quintus.com/v0.1.5/quintus-all.js'></script -->
+     <script src='js/quintus-0.1.5/quintus-all.js'></script>
+</head>
+<body style="background-color: black;">
+	<script>
+        var Q = Quintus()
+            .include("Sprites, Scenes, Input, 2D, Touch, UI")
+            .setup({
+                width: 960,
+                height: 640,
+                development: true
+            }).controls().touch();            
+        
+      
+        //player
+        Q.Sprite.extend("Player",{
+            init: function(p) {
+              this._super(p, { asset: "liz-sprite-stand.png", x: 110, y: 50, jumpSpeed: -380, jumping: false});
+              this.add('2d, platformerControls');              
+            },
+            step: function(dt) {
+                if(Q.inputs['left'] && this.p.direction == 'right') {
+                    this.p.flip = 'x';
+                } 
+                if(Q.inputs['right']  && this.p.direction == 'left') {
+                    this.p.flip = false;                    
+                }
+                if(Q.inputs['up']) {
+                    this.p.jumping = true;
+                    this.p.asset = "liz-sprite-jump.png";
+                    this.on("bump.bottom", function(collision) {
+                        if(this.p.jumping) {
+                            this.p.jumping = false;
+                            this.p.asset = "liz-sprite-stand.png";
+                        }
+                    });
+                }
+            }                    
+          });
+                       
+        
+        Q.scene("level1",function(stage) {
+          
+            /* var background = new Q.TileLayer({ dataAsset: 'liz-level1.tmx', layerIndex: 0, sheet: 'tiles', tileW: 72, tileH: 72, type: Q.SPRITE_NONE });
+            stage.insert(background);*/
+            
+            //stage.collisionLayer(new Q.TileLayer({ dataAsset: 'liz-level1.tmx', layerIndex: 0,  sheet: 'tiles', tileW: 36, tileH: 36 }));
+            stage.collisionLayer(new Q.TileLayer({ dataAsset: 'liz-level2.tmx', layerIndex: 0,  sheet: 'tiles', tileW: 34, tileH: 34 }));
+          
+            var player = stage.insert(new Q.Player());
+            
+            stage
+                .add("viewport")
+                .follow(player);
+                //.follow(player, {x: true, y: true}, {minX: 0, maxX: background.p.w, minY: 0, maxY: background.p.h});
+          
+        });
+        
+        
+        //load assets
+        //Q.load("textures1.png, player.png, liz-level1.tmx", function() {
+          //Q.sheet("tiles","textures1.png", { tilew: 72, tileh: 72});    
+        Q.load("textures1.png, liz-sprite-stand.png, liz-sprite-jump.png, liz-level2.tmx", function() {
+          Q.sheet("tiles","textures1.png", { tilew: 36, tileh: 36});                
+          Q.stageScene("level1");
+        });
+        
+        
+        </script>
+   </body>
+</html>
