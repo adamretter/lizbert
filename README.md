@@ -19,7 +19,9 @@ margin: 0
 
 TODO
 ----
-* Make head move around and say "Bored now!" when lizbert is stationary for two long.
-* Make head bob slightly as lizbert walks
+* Slow down the speaking animation for 'Bored Now' sprites
 * Add things for lizbert to collect
-* Add lizbery enemies
+* Add lizbert enemies
+* Add background picture
+* Add scoring
+* Add Leaderboard (may need server-side component to store and remember scores)
