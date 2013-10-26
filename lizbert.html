@@ -17,16 +17,26 @@
         //player
         Q.Sprite.extend("Player",{
             init: function(p) {
-              this._super(p, { asset: "liz-sprite-stand.png", x: 110, y: 50, jumpSpeed: -380, jumping: false});
-              this.add('2d, platformerControls');              
+                this._super(p, {
+                    asset: "liz-sprite-stand.png",
+                    x: 110, y: 50,
+                    jumpSpeed: -380,
+                    jumping: false  //is lizbert jumping?
+                });
+                this.add('2d, platformerControls');              
             },
+
             step: function(dt) {
+
+                //flip the sprite when walking left and then reset when walking right
                 if(Q.inputs['left'] && this.p.direction == 'right') {
                     this.p.flip = 'x';
                 } 
                 if(Q.inputs['right']  && this.p.direction == 'left') {
                     this.p.flip = false;                    
                 }
+
+                //change the sprite when jumping
                 if(Q.inputs['up']) {
                     this.p.jumping = true;
                     this.p.asset = "liz-sprite-jump.png";
@@ -46,8 +56,7 @@
             /* var background = new Q.TileLayer({ dataAsset: 'liz-level1.tmx', layerIndex: 0, sheet: 'tiles', tileW: 72, tileH: 72, type: Q.SPRITE_NONE });
             stage.insert(background);*/
             
-            //stage.collisionLayer(new Q.TileLayer({ dataAsset: 'liz-level1.tmx', layerIndex: 0,  sheet: 'tiles', tileW: 36, tileH: 36 }));
-            stage.collisionLayer(new Q.TileLayer({ dataAsset: 'liz-level2.tmx', layerIndex: 0,  sheet: 'tiles', tileW: 34, tileH: 34 }));
+            stage.collisionLayer(new Q.TileLayer({ dataAsset: 'level1.tmx', layerIndex: 0,  sheet: 'tiles', tileW: 35, tileH: 35 }));
           
             var player = stage.insert(new Q.Player());
             
@@ -59,11 +68,9 @@
         });
         
         
-        //load assets
-        //Q.load("textures1.png, player.png, liz-level1.tmx", function() {
-          //Q.sheet("tiles","textures1.png", { tilew: 72, tileh: 72});    
-        Q.load("textures1.png, liz-sprite-stand.png, liz-sprite-jump.png, liz-level2.tmx", function() {
-          Q.sheet("tiles","textures1.png", { tilew: 36, tileh: 36});                
+        //load assets 
+        Q.load("textures1.png, liz-sprite-stand.png, liz-sprite-jump.png, level1.tmx", function() {
+          Q.sheet("tiles","textures1.png", { tilew: 72, tileh: 72});                
           Q.stageScene("level1");
         });
         
