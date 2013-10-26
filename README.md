@@ -1,18 +1,18 @@
-lizbert
+Lizbert
 =======
-
+A game all about Lizbert ![The Lizbert](https://github.com/adamretter/lizbert/raw/master/images/liz-sprite-stand.png "The LizBert")
 
 Quintus TileLayer Details
 -------------------------
-tileW: 34
-tileH: 34
+tileW: 35
+tileH: 35
 
-Tile Details
-------------
-width: 35
-height: 35
-spacing: 1
-margin: 1
+Tile Details (textures1.png)
+----------------------------
+width: 72
+height: 72
+spacing: 0
+margin: 0
 
 TODO
 ----
