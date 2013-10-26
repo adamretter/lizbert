@@ -3,8 +3,14 @@
      <script src='js/quintus-0.1.6/quintus-all.js'></script>
 </head>
 <body style="background-color: black;">
-	<script>
-        var soundEnabled = false; //TODO enable
+    <script>
+        var soundEnabled = false;           //TODO enable
+        var BORED_INTERVAL = 1000 * 10;     //Interval that lizbert get's bored of doing nothing, default is 10 seconds //TOOD make configurable?
+        var BORED_ANIM_LENGTH = 800;        //How long to do the 'bored now' anim of lizbert. Note - Should be the same length as the sound-clip "bored-now.mp3"!
+
+        function timestamp() {
+            return new Date().getTime();
+        }
 
         function stepCycleUpDown(cycleObj) {
             //make the lizbert player head 'bob' when walking
@@ -52,7 +58,11 @@
                     frame: 0,
                     jumpSpeed: -380,
                     jumping: false,                         //is lizbert jumping?
-                    walking: setupUpDownCycleFrames(0, 3)  //frames for lizbert walking
+                    walking: setupUpDownCycleFrames(0, 3),  //frames for lizbert walking
+                    lastMoved: timestamp(),
+                    bored: setupUpDownCycleFrames(5, 7),    //frames for lizbert being bored
+                    isBoredAnim: false,
+                    saidBoredNow: false
                 });
                 this.add('2d, platformerControls');              
             },
@@ -68,6 +78,9 @@
                     if(Q.inputs['right']  && this.p.direction == 'left') {
                         this.p.flip = false;                    
                     }
+                    
+                    //update lastMoved timestamp
+                    this.p.lastMoved = timestamp();
 
                     //make the lizbert player head 'bob' when walking
                     stepCycleUpDown(this.p.walking);
@@ -76,6 +89,9 @@
                     this.p.frame = this.p.walking.frame.current;
 
                 } else if(Q.inputs['up']) {
+
+                    //update lastMoved timestamp
+                    this.p.lastMoved = timestamp();
 
                     //change the lizbert player sprite when jumping
                     this.p.jumping = true;
@@ -92,6 +108,48 @@
                             this.p.frame = this.p.walking.frame.current;
                         }
                     });
+                } else {
+
+                    if(this.p.isBoredAnim) {
+
+                        //have we been doing the 'bored now' anim for long enough?
+                        if(this.p.lastMoved + BORED_INTERVAL + BORED_ANIM_LENGTH > timestamp()) {
+                            //no, carry on doing the 'bored now' anim
+
+                            //TODO slow down the admin, by only stepping frames every so many ms (time by iterations through this loop!)
+                            stepCycleUpDown(this.p.bored);
+                            this.p.frame = this.p.bored.frame.current;
+
+                            if(soundEnabled && !this.p.saidBoredNow) {
+                                Q.audio.play("bored-now.mp3");
+                                this.p.saidBoredNow = true;
+                            }
+                        } else {
+
+                            //we have finished doing the 'bored now' anim
+                            this.p.isBoredAnim = false;
+
+                            //reset 'bored now' timer by updating lastMoved timestamp
+                            this.p.lastMoved = timestamp();
+
+                            //return to the current walking frame
+                            this.p.frame = this.p.walking.frame.current;
+
+                            console.debug("Lizbert has finished expressing that she is 'Bored Now!'"); //TODO remove or change to debug level
+                        }
+                    } else if(this.p.lastMoved + BORED_INTERVAL < timestamp()) {    //is lizbert bored of doing nothing?
+
+                        console.debug("Lizbert is 'Bored Now!'");
+
+                        //lizbert is bored of doing nothing
+                        this.p.isBoredAnim = true;
+
+                        //we haven't said that we are bored now (yet!)
+                        this.p.saidBoredNow = false;
+
+                        //start 'bored now' anim with standing sprite
+                        this.p.frame = 0;
+                    }
                 }
             }                    
           });
@@ -115,7 +173,7 @@
         
         
         //load assets 
-        Q.load("textures1.png, sprites.png, sprites.json, level1.tmx, wooh.mp3", function() {
+        Q.load("textures1.png, sprites.png, sprites.json, level1.tmx, wooh.mp3, bored-now.mp3", function() {
           Q.compileSheets("sprites.png", "sprites.json");
           Q.sheet("tiles","textures1.png", { tileW: 72, tileH: 72});                
           Q.stageScene("level1");
