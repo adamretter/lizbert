@@ -5,13 +5,16 @@
 </head>
 <body style="background-color: black;">
 	<script>
+        var soundEnabled = false; //TODO enable
+
         var Q = Quintus()
-            .include("Sprites, Scenes, Input, 2D, Touch, UI")
+            .include("Sprites, Scenes, Input, 2D, Touch, UI, Audio")
             .setup({
                 width: 960,
                 height: 640,
-                development: true
-            }).controls().touch();            
+                development: true,
+                audioSupported: ['mp3', 'wav']
+            }).enableSound().controls().touch();            
         
       
         //player
@@ -61,8 +64,13 @@
                 if(Q.inputs['up']) {
                     this.p.jumping = true;
                     this.p.frame = 4;
+                    
+                    if(soundEnabled) {
+                        Q.audio.play("wooh.mp3");
+                    }
+
+                    //restore jump to walk
                     this.on("bump.bottom", function(collision) {
-                        //restore jump to walk
                         if(this.p.jumping) {
                             this.p.jumping = false;
                             this.p.frame = this.p.walkFrame;
@@ -91,7 +99,7 @@
         
         
         //load assets 
-        Q.load("textures1.png, sprites.png, sprites.json, level1.tmx", function() {
+        Q.load("textures1.png, sprites.png, sprites.json, level1.tmx, wooh.mp3", function() {
           Q.compileSheets("sprites.png", "sprites.json");
           Q.sheet("tiles","textures1.png", { tileW: 72, tileH: 72});                
           Q.stageScene("level1");
