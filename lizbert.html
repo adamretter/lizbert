@@ -8,6 +8,8 @@
         var BORED_INTERVAL = 1000 * 10;     //Interval that lizbert get's bored of doing nothing, default is 10 seconds //TOOD make configurable?
         var BORED_ANIM_LENGTH = 800;        //How long to do the 'bored now' anim of lizbert. Note - Should be the same length as the sound-clip "bored-now.mp3"!
 
+        var SPRITE_WATER = 128;
+
         function timestamp() {
             return new Date().getTime();
         }
@@ -43,8 +45,11 @@
         var Q = Quintus()
             .include("Sprites, Scenes, Input, 2D, Touch, UI, Audio")
             .setup({
-                width: 960,
-                height: 640,
+                //width: 960,
+                //height: 640,
+                //width: 1024,
+                //height: 768,
+                maximize: true,
                 development: true,
                 audioSupported: ['mp3', 'wav']
             }).enableSound().controls().touch();            
@@ -54,6 +59,9 @@
         Q.Sprite.extend("LizbertPlayer", {
             init: function(p) {
                 this._super(p, {
+                    w: 51,
+                    h: 77,
+                    //collisionMask: SPRITE_WATER | Q.SPRITE_DEFAULT,
                     sheet: "lizbert",
                     frame: 0,
                     jumpSpeed: -380,
@@ -64,10 +72,34 @@
                     isBoredAnim: false,
                     saidBoredNow: false
                 });
+
                 this.add('2d, platformerControls');              
+
+                this.on("bump.bottom", function(collision) {
+                    
+                    //restore jump sprite to walk sprite
+                    if(this.p.jumping) {
+                        this.p.jumping = false;
+                        this.p.frame = this.p.walking.frame.current;
+                    }
+                });
             },
 
             step: function(dt) {
+
+                //TODO how to stomp enemies?
+                //var dirX = this.p.vx/Math.abs(this.p.vx);
+                //var ground = Q.stage().locate(this.p.x, this.p.y + this.p.h/2 + 1, Q.SPRITE_DEFAULT);
+                //var nextTile = Q.stage().locate(this.p.x + dirX * this.p.w/2 + dirX, this.p.y + this.p.h/2 + 1, Q.SPRITE_DEFAULT);
+
+                //if(!nextTile && ground) {
+                //    console.log("about to fall off cliff");
+                //}
+
+                //var water = Q.stage().locate(this.p.x, this.p.y, SPRITE_WATER);
+                //if(water) {
+                //    console.log("WE HIT WATER!");
+                //}
 
                 if(Q.inputs['left'] || Q.inputs['right']) {
 
@@ -100,14 +132,6 @@
                     if(soundEnabled) {
                         Q.audio.play("wooh.mp3");
                     }
-
-                    //restore jump sprite to walk sprite
-                    this.on("bump.bottom", function(collision) {
-                        if(this.p.jumping) {
-                            this.p.jumping = false;
-                            this.p.frame = this.p.walking.frame.current;
-                        }
-                    });
                 } else {
 
                     if(this.p.isBoredAnim) {
@@ -155,14 +179,21 @@
           });
                        
         
-        Q.scene("level1",function(stage) {
+        Q.scene("level1", function(stage) {
           
             /* var background = new Q.TileLayer({ dataAsset: 'liz-level1.tmx', layerIndex: 0, sheet: 'tiles', tileW: 72, tileH: 72, type: Q.SPRITE_NONE });
             stage.insert(background);*/
             
-            stage.collisionLayer(new Q.TileLayer({ dataAsset: 'level1.tmx', layerIndex: 0,  sheet: 'tiles', tileW: 35, tileH: 35 }));
+            stage.insert(new Q.Sprite({asset: 'background.jpg', w: 7000, h: 700, x: 0, y: 350, type: Q.SPRITE_NONE}));    //background
+            stage.collisionLayer(new Q.TileLayer({ dataAsset: 'level1.tmx', layerIndex: 0, sheet: 'tiles', tileW: 35, tileH: 35 }));                //platforms
+            stage.insert(new Q.TileLayer({ dataAsset: 'level1.tmx', layerIndex: 1, sheet: 'tiles', tileW: 35, tileH: 35, type: SPRITE_WATER }));  //water
+            stage.insert(new Q.TileLayer({ dataAsset: 'level1.tmx', layerIndex: 2, sheet: 'tiles', tileW: 35, tileH: 35, type: Q.SPRITE_NONE }));   //scenery
+
+
+            
+
           
-            var player = stage.insert(new Q.LizbertPlayer());
+            var player = stage.insert(new Q.LizbertPlayer({x: 110, y: 300}));
             
             stage
                 .add("viewport")
@@ -173,7 +204,7 @@
         
         
         //load assets 
-        Q.load("textures1.png, sprites.png, sprites.json, level1.tmx, wooh.mp3, bored-now.mp3", function() {
+        Q.load("textures1.png, sprites.png, sprites.json, level1.tmx, background.jpg, wooh.mp3, bored-now.mp3", function() {
           Q.compileSheets("sprites.png", "sprites.json");
           Q.sheet("tiles","textures1.png", { tileW: 72, tileH: 72});                
           Q.stageScene("level1");
