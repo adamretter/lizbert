@@ -26,8 +26,12 @@ margin: 2
 TODO
 ----
 * Slow down the speaking animation for 'Bored Now' sprites
-* Add things for lizbert to collect
-* Add lizbert enemies
+* Add things for Lizbert to collect (Academic Papers / Teapots)
+* Add Lizbert Energy bar... a.k.a. Liz Snacks! Liz gets hungry as she moves about! Liz snacks include - Crisps, Peanuts, Bananas and 
+* Add Lizbert enemies (Bees or Wasps / Alarm Clocks / Polystrene? / Rustly Polyester Trousers and Jackets?)
+* Need "Ouch!" / "Bad!" sound and anim when hit enemy or water
+* Give Lizbert n lives
+* Need background story and plot for start of game
 * Add background picture
 * Add scoring
 * Add Leaderboard (may need server-side component to store and remember scores)
