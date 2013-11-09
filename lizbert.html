@@ -8,8 +8,20 @@
         var BORED_INTERVAL = 1000 * 10;     //Interval that lizbert get's bored of doing nothing, default is 10 seconds //TOOD make configurable?
         var BORED_ANIM_LENGTH = 800;        //How long to do the 'bored now' anim of lizbert. Note - Should be the same length as the sound-clip "bored-now.mp3"!
 
-        var TILEW = 35;
-        var TILEH = 35;
+        var TILEW = 70;
+        var TILEH = 70;
+        
+        //100 x 15 tiles
+        var MAP_WIDTH = TILEW * 100;
+        var MAP_HEIGHT = TILEH * 15;
+        
+
+        var LIZ_SPRITE = {
+            w: 51,      //width
+            h: 77,      //height
+            cx: 25.5,   //distance from left to center of sprite
+            cy: 38.5,   //distance from top to center of sprite
+        };
 
         var SPRITE_WATER = 128;
         var SPRITE_LADDER = 256;
@@ -109,30 +121,30 @@
 
             step: function(dt) {
 
-            var dirX = this.p.vx/Math.abs(this.p.vx);
-            var ground = Q.stage().locate(this.p.x, this.p.y + this.p.h/2 + 1, Q.SPRITE_DEFAULT);
-            var nextTile = Q.stage().locate(this.p.x + dirX * this.p.w/2 + dirX, this.p.y + this.p.h/2 + 1, Q.SPRITE_DEFAULT);
-            
-            //if we are on ground and there is a cliff
-            if(!nextTile && ground) {
-                if(this.p.vx > 0) {
-                    if(this.p.defaultDirection == "right") {
-                        this.p.flip = "x";
+                var dirX = this.p.vx/Math.abs(this.p.vx);
+                var ground = Q.stage().locate(this.p.x, this.p.y + this.p.h/2 + 1, Q.SPRITE_DEFAULT);
+                var nextTile = Q.stage().locate(this.p.x + dirX * this.p.w/2 + dirX, this.p.y + this.p.h/2 + 1, Q.SPRITE_DEFAULT);
+                
+                //if we are on ground and there is a cliff
+                if(!nextTile && ground) {
+                    if(this.p.vx > 0) {
+                        if(this.p.defaultDirection == "right") {
+                            this.p.flip = "x";
+                        }
+                        else {
+                            this.p.flip = false;
+                        }
                     }
                     else {
-                        this.p.flip = false;
+                        if(this.p.defaultDirection == "left") {
+                            this.p.flip = "x";
+                        }
+                        else {
+                            this.p.flip = false;
+                        }
                     }
+                    this.p.vx = -this.p.vx;
                 }
-                else {
-                    if(this.p.defaultDirection == "left") {
-                        this.p.flip = "x";
-                    }
-                    else {
-                        this.p.flip = false;
-                    }
-                }
-                this.p.vx = -this.p.vx;
-            }
 
                 // var xDirection = this.p.vx / Math.abs(this.p.vx);
                 // var nextX = this.p.x + ((this.p.cx + 4) * xDirection);
@@ -158,11 +170,10 @@
         Q.Sprite.extend("LizbertPlayer", {
             init: function(p) {
                 this._super(p, {
-                    w: 51,
-                    h: 77,
-                    cx: 25.5,
-                    cy: 38.5,
-                    collisionMask: Q.SPRITE_DEFAULT, // | SPRITE_LADDER | SPRITE_WATER,
+                    w: LIZ_SPRITE.w,
+                    h: LIZ_SPRITE.h,
+                    cx: LIZ_SPRITE.cx,
+                    cy: LIZ_SPRITE.cy,
                     sheet: "lizbert",
                     frame: 0,
                     jumpSpeed: -380,
@@ -188,18 +199,12 @@
 
             step: function(dt) {
 
-                //var dirX = this.p.vx/Math.abs(this.p.vx);
-                //var ground = Q.stage().locate(this.p.x, this.p.y + this.p.h/2 + 1, Q.SPRITE_DEFAULT);
-                //var nextTile = Q.stage().locate(this.p.x + dirX * this.p.w/2 + dirX, this.p.y + this.p.h/2 + 1, Q.SPRITE_DEFAULT);
-
-                //if(!nextTile && ground) {
-                //    console.log("about to fall off cliff");
-                //}
-
-                //var water = Q.stage().locate(this.p.x, this.p.y, SPRITE_WATER);
-                //if(water) {
-                //    console.log("WE HIT WATER!");
-                //}
+                //if we hit the bottom row of the map, we make the assumption that we have hit, water, lava or some other death!
+                var spriteBottom = this.p.y + this.p.cy;
+                if(spriteBottom > MAP_HEIGHT - (TILEH / 2)) {   //we actually check 1/2 way through the bottom row
+                    //TODO "Ouch!" noise and Animation
+                    console.debug("Liz hit bottom!");
+                }
 
                 if(Q.inputs['left'] || Q.inputs['right']) {
 
@@ -273,34 +278,39 @@
         
         Q.scene("level1", function(stage) {
             
-            stage.insert(new Q.Sprite({asset: 'background.jpg', layerIndex: 1, w: 7000, h: 700, x: 3500, y: 350, type: Q.SPRITE_NONE}));                      //background
-            stage.collisionLayer(new Q.TileLayer({ dataAsset: 'level1.tmx', layerIndex: 0, sheet: 'tiles', tileW: TILEW, tileH: TILEH }));                    //platforms
-            stage.insert(new Q.TileLayer({ dataAsset: 'level1.tmx', layerIndex: 1, sheet: 'tiles', tileW: TILEW, tileH: TILEH, type: SPRITE_WATER }));        //water
-            stage.insert(new Q.TileLayer({ dataAsset: 'level1.tmx', layerIndex: 2, sheet: 'tiles', tileW: TILEW, tileH: TILEH, type: SPRITE_LADDER }));       //ladders
-            stage.insert(new Q.TileLayer({ dataAsset: 'level1.tmx', layerIndex: 3, sheet: 'tiles', tileW: TILEW, tileH: TILEH, type: Q.SPRITE_NONE }));       //scenery
+            stage.insert(new Q.Sprite({asset: 'background.jpg', layerIndex: 1, w: 7000, h: 700, x: 3500, y: 350, type: Q.SPRITE_NONE}));                        //background
+            stage.collisionLayer(new Q.TileLayer({ dataAsset: 'level1.tmx', layerIndex: 0, sheet: 'tiles', tileW: TILEW, tileH: TILEH }));                      //platforms
+            stage.insert(new Q.TileLayer({ dataAsset: 'level1.tmx', layerIndex: 1, sheet: 'tiles', tileW: TILEW, tileH: TILEH, type: Q.SPRITE_NONE }));         //water
+            //stage.insert(new Q.TileLayer({ dataAsset: 'level1.tmx', layerIndex: 3, sheet: 'tiles', tileW: TILEW, tileH: TILEH, type: SPRITE_LADDER }));       //ladders
+            stage.insert(new Q.TileLayer({ dataAsset: 'level1.tmx', layerIndex: 3, sheet: 'tiles', tileW: TILEW, tileH: TILEH, type: Q.SPRITE_NONE }));         //scenery
 
 
             //enemies
-            stage.insert(new Q.SlimeEnemy({x: 200, y: 546}));
+            stage.insert(new Q.SlimeEnemy({x: 4 * TILEW, y: 12 * TILEH}));
 
             //player
-            var player = stage.insert(new Q.LizbertPlayer({x: 3 * TILEW, y: 9 * TILEH}));
+            var player = stage.insert(new Q.LizbertPlayer({x: 1.5 * TILEW, y: (8 * TILEH) - LIZ_SPRITE.cy}));
             
+            //inserted last so other sprites move in front of these!
+            stage.insert(new Q.TileLayer({ dataAsset: 'level1.tmx', layerIndex: 2, sheet: 'tiles', tileW: TILEW, tileH: TILEH, type: Q.SPRITE_NONE }));         //bridge pillars
+
             stage
                 .add("viewport")
                 .follow(player);
-                //.follow(player, {x: true, y: true}, {minX: 0, maxX: background.p.w, minY: 0, maxY: background.p.h});
+                ////.follow(player, {x: true, y: true}, {minX: 0, maxX: background.p.w, minY: 0, maxY: background.p.h});
         });
 
         //Q.debug = true;
         //Q.debugFill = true;
         
         
-        //load assets 
+        //load assets
         Q.load("textures1.png, lizbert-sprites.png, lizbert-sprites.json, slime-sprites.png, slime-sprites.json, level1.tmx, background.jpg, wooh.mp3, bored-now.mp3", function() {
             Q.compileSheets("lizbert-sprites.png", "lizbert-sprites.json");
             Q.compileSheets("slime-sprites.png", "slime-sprites.json");
-            Q.sheet("tiles","textures1.png", { tileW: 72, tileH: 72});                
+            
+            //TODO tileW and tileH should be 70, but I dunno how to declare spacing and margin
+            Q.sheet("tiles","textures1.png", { tileW: 72, tileH: 72, sx: 2, sy: 2});                //sx and sy are offsets to the first tile
             Q.stageScene("level1");
         });
         

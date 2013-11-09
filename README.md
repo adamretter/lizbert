@@ -7,15 +7,21 @@ The game is made using the [Quintus HTML5 game engine](http://html5quintus.com/)
 
 Quintus TileLayer Details
 -------------------------
-tileW: 35
-tileH: 35
+tileW: 72
+tileH: 72
+cx: 2
+cy: 2
 
-Tile Details (textures1.png)
-----------------------------
-width: 72
-height: 72
-spacing: 0
-margin: 0
+Note - tileW and tileH should probably be 70!
+
+
+Tiled TileSet Details (textures1.png)
+-------------------------------------
+width: 70
+height: 70
+spacing: 2
+margin: 2
+
 
 TODO
 ----
